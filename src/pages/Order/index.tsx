@@ -7,9 +7,11 @@ import {
   TextInput,
 } from "react-native";
 
-import { useRoute, RouteProp } from "@react-navigation/native";
+import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
 
 import { Feather, FontAwesome } from "@expo/vector-icons";
+
+import { api } from "../../services/api";
 
 type RouteDetailParams = {
   Order: {
@@ -23,11 +25,30 @@ type OrderRouteProps = RouteProp<RouteDetailParams, "Order">;
 
 export default function Order() {
   const route = useRoute<OrderRouteProps>();
+  const navigation = useNavigation();
+
+  async function handleCloseOrder() {
+    try {
+      await api.delete("/order", {
+        params: {
+          order_id: route.params?.order_id,
+        },
+      });
+
+      navigation.goBack();
+      
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <View style={style.container}>
       <View style={style.header}>
-        <TouchableOpacity style={[style.button, { marginBottom: 15 }]}>
+        <TouchableOpacity
+          style={[style.button, { marginBottom: 15 }]}
+          onPress={handleCloseOrder}
+        >
           <Text style={style.buttonText}>Cancelar Pedido</Text>
           <FontAwesome name="trash" size={28} color="#FFF" />
         </TouchableOpacity>
