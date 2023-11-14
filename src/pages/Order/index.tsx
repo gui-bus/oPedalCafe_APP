@@ -135,6 +135,20 @@ export default function Order() {
     setItems((oldArray) => [...oldArray, data]);
   }
 
+  async function handleDeleteItem(item_id: string) {
+    await api.delete("/order/remove", {
+      params: {
+        item_id: item_id,
+      },
+    });
+
+    let removeItem = items.filter((item) => {
+      return item.id !== item_id;
+    });
+
+    setItems(removeItem);
+  }
+
   return (
     <View style={style.container}>
       <View style={style.header}>
@@ -197,21 +211,23 @@ export default function Order() {
       <View style={style.divider}></View>
 
       {items.length === 0 && (
-          <TouchableOpacity
-            style={[style.button, { marginBottom: 15 }]}
-            onPress={handleCloseOrder}
-          >
-            <Text style={style.buttonText}>Cancelar Pedido</Text>
-            <FontAwesome name="trash" size={28} color="#FFF" />
-          </TouchableOpacity>
-        )}
+        <TouchableOpacity
+          style={[style.button, { marginBottom: 15 }]}
+          onPress={handleCloseOrder}
+        >
+          <Text style={style.buttonText}>Cancelar Pedido</Text>
+          <FontAwesome name="trash" size={28} color="#FFF" />
+        </TouchableOpacity>
+      )}
 
       <FlatList
         showsVerticalScrollIndicator={false}
         style={{ flex: 1 }}
         data={items}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ListItem data={item} />}
+        renderItem={({ item }) => (
+          <ListItem data={item} deleteItem={handleDeleteItem} />
+        )}
       />
 
       <Modal

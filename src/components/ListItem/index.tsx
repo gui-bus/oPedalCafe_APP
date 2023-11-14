@@ -11,15 +11,23 @@ interface ItemProps {
     amount: string | number;
     banner: string;
   };
+  deleteItem: (item_id: string) => void;
 }
 
-export function ListItem({ data }: ItemProps) {
+export function ListItem({ data, deleteItem }: ItemProps) {
+  function handleDeleteItem() {
+    deleteItem(data.id);
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.item}>
         {data.amount} - {data.name}
       </Text>
-      <FontAwesome name="trash" size={28} color="#333333" style={{width: "10%"}}/>
+
+      <TouchableOpacity style={{ width: "10%" }} onPress={handleDeleteItem}>
+        <FontAwesome name="trash" size={28} color="#333333" />
+      </TouchableOpacity>
     </View>
   );
 }
