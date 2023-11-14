@@ -12,6 +12,8 @@ import { useNavigation } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StackParamsList } from "../../routes/app.routes";
 
+import { api } from "../../services/api";
+
 import { AuthContext } from "../../contexts/AuthContext";
 
 export default function Dashboard() {
@@ -26,11 +28,19 @@ export default function Dashboard() {
       alert("Favor preencher todos os campos!");
     }
 
+    const response = await api.post("/order", {
+      table: Number(number),
+      name: name,
+    });
+
     navigation.navigate("Order", {
       number: number,
       name: name,
-      order_id: "338de4f2-bf41-4252-ad95-7e01bbed3177",
+      order_id: response.data.id,
     });
+
+    setNumber(''),
+    setName('')
   }
 
   return (
