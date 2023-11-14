@@ -1,10 +1,74 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+
+import { useRoute, RouteProp } from "@react-navigation/native";
+
+import { Feather, FontAwesome } from "@expo/vector-icons";
+
+type RouteDetailParams = {
+  Order: {
+    number: string | number;
+    name: string;
+    order_id: string;
+  };
+};
+
+type OrderRouteProps = RouteProp<RouteDetailParams, "Order">;
 
 export default function Order() {
+  const route = useRoute<OrderRouteProps>();
+
   return (
     <View style={style.container}>
-      <Text style={style.title}>Tela Order</Text>
+      <View style={style.header}>
+        <TouchableOpacity style={[style.button, { marginBottom: 15 }]}>
+          <Text style={style.buttonText}>Cancelar Pedido</Text>
+          <FontAwesome name="trash" size={28} color="#FFF" />
+        </TouchableOpacity>
+
+        <Text numberOfLines={1} style={style.subtitle2}>
+          Mesa - <Text style={style.title}>{route.params.number}</Text>
+        </Text>
+        <Text numberOfLines={1} style={style.subtitle2}>
+          Cliente - <Text style={style.title}>{route.params.name}</Text>
+        </Text>
+      </View>
+
+      <TouchableOpacity style={style.input}>
+        <Text style={style.inputText}>Bebidas</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={style.input}>
+        <Text style={style.inputText}>Suco de Morango</Text>
+      </TouchableOpacity>
+
+      <View style={style.qtdContainer}>
+        <TextInput
+          style={[
+            style.input,
+            { width: "60%", textAlign: "center", height: 60 },
+          ]}
+          placeholder="Insira a quantidade..."
+          keyboardType="numeric"
+          autoComplete="off"
+        />
+        <TouchableOpacity style={[style.buttonAdd, { width: "35%" }]}>
+          <Feather name="plus-circle" size={28} color="#FFF" />
+        </TouchableOpacity>
+      </View>
+
+      <View style={style.actions}>
+        <TouchableOpacity style={style.button}>
+          <Text style={style.buttonText}>Finalizar Pedido</Text>
+          <Feather name="check-circle" size={28} color="#FFF" />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -12,18 +76,85 @@ export default function Order() {
 const style = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingVertical: 15,
+    paddingVertical: "5%",
+    paddingEnd: "4%",
+    paddingStart: "4%",
     backgroundColor: "#fff",
   },
-  title: {
-    fontSize: 30,
-    fontWeight: "bold",
+  header: {
+    flexDirection: "column",
     marginBottom: 12,
-    borderBottomWidth: 1,
-    paddingBottom: 10,
-    width: "70%",
+    alignItems: "center",
+    marginTop: 24,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    width: "100%",
+  },
+  subtitle1: {
+    fontSize: 14,
+    textAlign: "center",
+    fontWeight: "700",
+  },
+  subtitle2: {
+    fontSize: 20,
+    marginBottom: 12,
+    textAlign: "center",
+    paddingHorizontal: 45,
+    width: "100%",
+  },
+  input: {
+    height: 50,
+    borderColor: "gray",
+    borderWidth: 1,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    width: "100%",
+    borderRadius: 10,
+    backgroundColor: "#f1f1f1",
+    textAlign: "center",
+    justifyContent: "center",
+  },
+  qtdContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  qtdText: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  button: {
+    width: "100%",
+    height: 60,
+    backgroundColor: "#F76707",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  buttonText: {
+    color: "#FFF",
+    fontWeight: "bold",
+    marginRight: 10,
+    fontSize: 15,
+  },
+  actions: {
+    flexDirection: "row",
+    width: "100%",
+    justifyContent: "space-between",
+  },
+  buttonAdd: {
+    width: "20%",
+    height: 60,
+    backgroundColor: "#F76707",
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
+    flexDirection: "row",
+  },
+  inputText: {
     textAlign: "center",
   },
 });
