@@ -7,6 +7,7 @@ import {
   TextInput,
   Modal,
   FlatList,
+  Alert,
 } from "react-native";
 
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
@@ -16,6 +17,9 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 import { api } from "../../services/api";
 import ModalPicker from "../../components/ModalPicker";
 import { ListItem } from "../../components/ListItem";
+
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import { StackParamsList } from "../../routes/app.routes";
 
 type RouteDetailParams = {
   Order: {
@@ -48,7 +52,8 @@ type OrderRouteProps = RouteProp<RouteDetailParams, "Order">;
 
 export default function Order() {
   const route = useRoute<OrderRouteProps>();
-  const navigation = useNavigation();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<StackParamsList>>();
 
   const [category, setCategory] = useState<CategoryProps[] | []>([]);
   const [categorySelected, setCategorySelected] = useState<
@@ -64,6 +69,7 @@ export default function Order() {
 
   const [amount, setAmount] = useState("");
   const [items, setItems] = useState<ItemProps[]>([]);
+  const [orderConfirm, setOrderConfirm] = useState(false);
 
   useEffect(() => {
     async function loadInfo() {
@@ -149,6 +155,41 @@ export default function Order() {
     setItems(removeItem);
   }
 
+  function handleFinishOrder() {
+    setOrderConfirm(true);
+    Alert.alert(
+      "Confirmar Pedido 🛒",
+      `Você está prestes a finalizar o seguinte pedido: \n\nCliente - ${route.params.name} \nMesa - ${route.params.number} \nNúmero de itens - ${items.length} \n\nPor favor, revise cuidadosamente todos os itens e detalhes antes de confirmar.`,
+      [
+        {
+          text: "Cancelar",
+          onPress: () => setOrderConfirm(false),
+          style: "cancel",
+        },
+        { text: "Confirmar", onPress: () => handleConfirmOrder() },
+      ]
+    );
+  }
+
+  async function handleConfirmOrder() {
+    // route.params.number e route.params.order_id
+
+    try {
+      await api.put("/order/send", {
+        order_id: route.params.order_id,
+      });
+
+      navigation.popToTop();
+    } catch (err) {
+      Alert.alert("Erro ao finalizar o pedido", "Tente novamente mais tarde.");
+    }
+
+    Alert.alert(
+      "Pedido Confirmado",
+      `O pedido da mesa ${route.params.number} foi confirmado com sucesso! 🎉`
+    );
+  }
+
   return (
     <View style={style.container}>
       <View style={style.header}>
@@ -202,6 +243,7 @@ export default function Order() {
         <TouchableOpacity
           style={[style.button, { opacity: items.length === 0 ? 0.5 : 1 }]}
           disabled={items.length === 0}
+          onPress={handleFinishOrder}
         >
           <Text style={style.buttonText}>Finalizar Pedido</Text>
           <Feather name="check-circle" size={28} color="#FFF" />
