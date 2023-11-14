@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
+  FlatList,
 } from "react-native";
 
 import { useRoute, RouteProp, useNavigation } from "@react-navigation/native";
@@ -14,6 +15,7 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 
 import { api } from "../../services/api";
 import ModalPicker from "../../components/ModalPicker";
+import { ListItem } from "../../components/ListItem";
 
 type RouteDetailParams = {
   Order: {
@@ -31,6 +33,14 @@ export type CategoryProps = {
 export type ProductProps = {
   id: string;
   name: string;
+  banner: string;
+};
+
+type ItemProps = {
+  id: string;
+  product_id: string;
+  name: string;
+  amount: string | number;
   banner: string;
 };
 
@@ -53,6 +63,7 @@ export default function Order() {
   const [modalProductVisible, setModalProductVisible] = useState(false);
 
   const [amount, setAmount] = useState("");
+  const [items, setItems] = useState<ItemProps[]>([]);
 
   useEffect(() => {
     async function loadInfo() {
@@ -101,17 +112,32 @@ export default function Order() {
     setProductSeleted(item);
   }
 
+  async function handleAdd() {
+    if (amount === "") {
+      return alert("Favor adicionar a quantidade!");
+    }
+
+    const response = await api.post("/order/add", {
+      order_id: route.params.order_id,
+      product_id: productSeleted?.id,
+      amount: Number(amount),
+      banner: productSeleted?.banner,
+    });
+
+    let data = {
+      id: response.data.id,
+      product_id: productSeleted?.id as string,
+      name: productSeleted?.name as string,
+      amount: amount,
+      banner: productSeleted?.banner as string,
+    };
+
+    setItems((oldArray) => [...oldArray, data]);
+  }
+
   return (
     <View style={style.container}>
       <View style={style.header}>
-        <TouchableOpacity
-          style={[style.button, { marginBottom: 15 }]}
-          onPress={handleCloseOrder}
-        >
-          <Text style={style.buttonText}>Cancelar Pedido</Text>
-          <FontAwesome name="trash" size={28} color="#FFF" />
-        </TouchableOpacity>
-
         <Text numberOfLines={1} style={style.subtitle2}>
           Mesa - <Text style={style.title}>{route.params.number}</Text>
         </Text>
@@ -150,17 +176,43 @@ export default function Order() {
           value={amount}
           onChangeText={setAmount}
         />
-        <TouchableOpacity style={[style.buttonAdd, { width: "35%" }]}>
+        <TouchableOpacity
+          style={[style.buttonAdd, { width: "35%" }]}
+          onPress={handleAdd}
+        >
           <Feather name="plus-circle" size={28} color="#FFF" />
         </TouchableOpacity>
       </View>
 
       <View style={style.actions}>
-        <TouchableOpacity style={style.button}>
+        <TouchableOpacity
+          style={[style.button, { opacity: items.length === 0 ? 0.5 : 1 }]}
+          disabled={items.length === 0}
+        >
           <Text style={style.buttonText}>Finalizar Pedido</Text>
           <Feather name="check-circle" size={28} color="#FFF" />
         </TouchableOpacity>
       </View>
+
+      <View style={style.divider}></View>
+
+      {items.length === 0 && (
+          <TouchableOpacity
+            style={[style.button, { marginBottom: 15 }]}
+            onPress={handleCloseOrder}
+          >
+            <Text style={style.buttonText}>Cancelar Pedido</Text>
+            <FontAwesome name="trash" size={28} color="#FFF" />
+          </TouchableOpacity>
+        )}
+
+      <FlatList
+        showsVerticalScrollIndicator={false}
+        style={{ flex: 1 }}
+        data={items}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <ListItem data={item} />}
+      />
 
       <Modal
         transparent={true}
@@ -272,5 +324,10 @@ const style = StyleSheet.create({
   },
   inputText: {
     textAlign: "center",
+  },
+  divider: {
+    borderBottomWidth: 1,
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
