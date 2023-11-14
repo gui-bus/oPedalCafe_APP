@@ -14,7 +14,7 @@ import { Feather, FontAwesome } from "@expo/vector-icons";
 interface ModalPickerProps {
   options: CategoryProps[];
   handleCloseModal: () => void;
-  selectedItem: (item: CategoryProps) => void;
+  selectedItem: (item: any) => void;
 }
 
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
@@ -46,7 +46,7 @@ export default function ModalPicker({
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.div}>
             <Text style={styles.title}>Selecione a categoria </Text>
-            <Feather name="check-circle" size={28}/>
+            <Feather name="check-circle" size={28} />
           </View>
           {option}
         </ScrollView>
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginBottom: 10,
+    textAlign: "center",
   },
   item: { fontSize: 15, fontWeight: "bold", color: "#fff" },
   title: {
